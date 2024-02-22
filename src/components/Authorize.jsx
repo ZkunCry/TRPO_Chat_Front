@@ -1,24 +1,42 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
-import { Link, useLocation } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { instance } from "../utils/axios";
+import AppContext from "../context/AppContext";
 export const Authorize = () => {
   const location = useLocation();
+  const { setUser, getUser, user } = useContext(AppContext);
   const { register, control, handleSubmit, reset } = useForm();
-
+  console.log(user);
+  if (user) return <Navigate to={"/chatmainpage"}></Navigate>;
   const handleSubmitForm = async (data) => {
-    if (location.pathname === "/signin") {
+    if (location.pathname === "/signin" || location.pathname === "/") {
       const { username, password } = data;
-      const result = await instance.post("/User/Register", {
-        username: username,
-        password: password,
+      const result = await instance.post("/User/Login", null, {
+        params: {
+          username,
+          password,
+        },
       });
-      console.log(result);
+
+      setUser(result.data);
       reset();
     } else {
       const { username, confirmPassword, password } = data;
+      if (password !== confirmPassword) {
+        alert("Пароли не совпадают!");
+        reset();
+      } else {
+        const result = await instance.post("/User/Register", null, {
+          params: {
+            username,
+            password,
+          },
+        });
+        setUser(result.data);
+      }
       reset();
     }
   };
