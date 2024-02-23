@@ -4,9 +4,25 @@ const AppContextProvider = ({ children }) => {
   const [user, setCurrentUser] = useState(
     JSON.parse(localStorage.getItem("user")) || null
   );
+  const [accessToken, setAccesstoken] = useState(
+    JSON.parse(localStorage.getItem("accessToken")) || null
+  );
   const setUser = (user) => {
-    localStorage.setItem("user", JSON.stringify(user));
+    const currentUser = user;
+    console.log(currentUser);
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        name: currentUser.name,
+        _Id: currentUser._Id,
+      })
+    );
+    localStorage.setItem(
+      "accessToken",
+      JSON.stringify(currentUser.accessToken)
+    );
     setCurrentUser(user);
+    setAccessToken(currentUser.accessToken);
   };
   const getUser = () => {
     return user;
@@ -17,6 +33,7 @@ const AppContextProvider = ({ children }) => {
     setUser,
     getUser,
     user,
+    accessToken,
   };
   return (
     <AppContext.Provider value={valueAppProvider}>

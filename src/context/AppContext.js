@@ -5,5 +5,6 @@ const AppContext = createContext({
   setAccessToken: () => {},
   getUser: () => {},
   user: null,
+  accessToken: null,
 });
 export default AppContext;
