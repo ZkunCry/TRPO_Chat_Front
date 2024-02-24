@@ -3,10 +3,21 @@ import AppContext from "../context/AppContext";
 import * as signalR from "@microsoft/signalr";
 import ChatItem from "../components/ChatItem";
 import { instance } from "../utils/axios";
+import Modal from "../components/Modal";
+import { Form, useForm } from "react-hook-form";
 
 export const ChatPage = () => {
   const [connection, setConnection] = useState(null);
   const { user, accessToken } = useContext(AppContext);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const {register,control} = useForm();
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
   console.log(connection);
   useEffect(() => {
     const newConnection = new signalR.HubConnectionBuilder()
@@ -35,13 +46,16 @@ export const ChatPage = () => {
     }
   }, [connection]);
 
-  const createdChat = async () => {
-    connection.invoke(
-      "SendMessage",
-      "65d9a1a4f16b0b9eb6c11b0d",
-      "Privet mir",
-      "65d216aad82d51dfa55ce27f"
-    );
+  const createdChat = async (data) => {
+    const {name} = data.data;
+    console.log(name);
+    try {
+      const user = await instance.get(`/User/GetUserByName?name=${name}`)
+      
+      console.log(user);
+    } catch (error) {
+      console.log("Error: ",error);
+    }
   };
 
   return (
@@ -58,7 +72,7 @@ export const ChatPage = () => {
         <div className="flex flex-row justify-between dark:bg-gray-900 bg-white h-chatHeight">
           <div className="flex flex-col w-2/5 border-r-2 dark:bg-[#1B1C28] dark:text-white dark:border-[#593A8D] relative">
             <button
-              onClick={createdChat}
+              onClick={openModal}
               className="text-center text-xl p-2 border-b-2 dark:border-[#593A8D]"
             >
               <h3> + Создать чат</h3>
@@ -118,6 +132,14 @@ export const ChatPage = () => {
             </div>
           </div>
         </div>
+        <Modal isOpen={isModalOpen} onClose={closeModal}>
+          <h1>Создание диалога</h1>
+          <Form control={control} onSubmit={createdChat}>
+          <input type="text" {...register("name")} placeholder="Введите имя пользователя" />
+          <button  >Отправить</button>
+
+          </Form>
+        </Modal>
       </div>
     </div>
   );

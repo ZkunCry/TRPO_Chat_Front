@@ -1,16 +1,17 @@
 import React, { useContext, useState } from "react";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
-import { Link, Navigate, useLocation } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { instance } from "../utils/axios";
 import AppContext from "../context/AppContext";
 export const Authorize = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { setUser, getUser, user } = useContext(AppContext);
   const { register, control, handleSubmit, reset } = useForm();
   console.log(user);
-  if (user) return <Navigate to={"/chatmainpage"}></Navigate>;
+
   const handleSubmitForm = async (data) => {
     if (location.pathname === "/signin" || location.pathname === "/") {
       const { username, password } = data;
@@ -20,9 +21,10 @@ export const Authorize = () => {
           password,
         },
       });
-
+      navigate("/chatmainpage")
       setUser(result.data);
       reset();
+      
     } else {
       const { username, confirmPassword, password } = data;
       if (password !== confirmPassword) {
