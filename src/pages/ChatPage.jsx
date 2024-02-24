@@ -28,7 +28,7 @@ export const ChatPage = () => {
         })
         .catch((e) => console.log("Connection failed: ", e));
 
-      connection.on("ReceiveMessage", (message) => {
+      connection.on("onMessage", (message) => {
         console.log("Received message: ", message);
         // Обработка полученного сообщения
       });
@@ -36,14 +36,12 @@ export const ChatPage = () => {
   }, [connection]);
 
   const createdChat = async () => {
-    const username = user.name;
-    const roomName = "testroom";
-    await instance.post("/Chat/CreateChatRoom", null, {
-      params: {
-        username,
-        roomName,
-      },
-    });
+    connection.invoke(
+      "SendMessage",
+      "65d9a1a4f16b0b9eb6c11b0d",
+      "Privet mir",
+      "65d216aad82d51dfa55ce27f"
+    );
   };
 
   return (
