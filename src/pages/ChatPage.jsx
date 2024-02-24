@@ -5,12 +5,15 @@ import ChatItem from "../components/ChatItem";
 import { instance } from "../utils/axios";
 import Modal from "../components/Modal";
 import { Form, useForm } from "react-hook-form";
+import ChatRoomContext from "../context/ChatRoomContext";
+import ChatRooms from "../components/ChatRooms";
 
 export const ChatPage = () => {
   const [connection, setConnection] = useState(null);
   const { user, accessToken } = useContext(AppContext);
+  const { chatRooms, setChatRooms, addChatRoom } = useContext(ChatRoomContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const {register,control} = useForm();
+  const { register, control } = useForm();
   const openModal = () => {
     setIsModalOpen(true);
   };
@@ -18,7 +21,7 @@ export const ChatPage = () => {
   const closeModal = () => {
     setIsModalOpen(false);
   };
-  console.log(connection);
+
   useEffect(() => {
     const newConnection = new signalR.HubConnectionBuilder()
       .withUrl("http://localhost:5211/chat", {
@@ -36,6 +39,7 @@ export const ChatPage = () => {
         .start()
         .then((result) => {
           console.log("Connected!");
+          connection.invoke("GetDialogs", user._Id);
         })
         .catch((e) => console.log("Connection failed: ", e));
 
@@ -43,18 +47,41 @@ export const ChatPage = () => {
         console.log("Received message: ", message);
         // Обработка полученного сообщения
       });
+      connection.on("onGetDialogs", (dialogs) => {
+        console.log(dialogs);
+        setChatRooms(dialogs);
+      });
+      connection.on("onReceiveError", (error) => {
+        console.log("Error: ", error);
+      });
+      connection.on("onCreateDialog", (chatroom) => {
+        addChatRoom(chatroom);
+      });
     }
   }, [connection]);
+  // useEffect(() => {
+  //   if (connection) {
+  //     connection.on("onCreateDialog", (chatroom) => {
+  //       addChatRoom(chatroom);
+  //     });
+  //     connection.on("onGetDialogs", (dialogs) => {
+  //       console.log(dialogs);
+  //       setChatRooms(dialogs);
+  //     });
+  //   }
+  // }, [chatRooms]);
+  console.log(chatRooms);
 
   const createdChat = async (data) => {
-    const {name} = data.data;
+    const { name } = data.data;
     console.log(name);
     try {
-      const user = await instance.get(`/User/GetUserByName?name=${name}`)
-      
-      console.log(user);
+      const userEnter = await instance.get(`/User/GetUserByName?name=${name}`);
+      if (user) {
+        connection.invoke("CreateAndEnterDialog", user._Id, userEnter.data._Id);
+      }
     } catch (error) {
-      console.log("Error: ",error);
+      console.log("Error: ", error);
     }
   };
 
@@ -84,9 +111,7 @@ export const ChatPage = () => {
                 className="py-2 px-2 border-2 dark:text-white dark:bg-gray-900 border-[#593A8D] rounded-2xl w-full"
               />
             </div>
-            <div className="flex flex-col w-full  overflow-y-auto">
-              <ChatItem />
-            </div>
+            <ChatRooms chatrooms={chatRooms} />
           </div>
 
           <div className="w-full px-5 flex flex-col justify-between min-h-chatHeight">
@@ -135,9 +160,12 @@ export const ChatPage = () => {
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h1>Создание диалога</h1>
           <Form control={control} onSubmit={createdChat}>
-          <input type="text" {...register("name")} placeholder="Введите имя пользователя" />
-          <button  >Отправить</button>
-
+            <input
+              type="text"
+              {...register("name")}
+              placeholder="Введите имя пользователя"
+            />
+            <button>Отправить</button>
           </Form>
         </Modal>
       </div>
