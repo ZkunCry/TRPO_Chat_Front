@@ -7,12 +7,14 @@ import Modal from "../components/Modal";
 import { Form, useForm } from "react-hook-form";
 import ChatRoomContext from "../context/ChatRoomContext";
 import ChatRooms from "../components/ChatRooms";
+import Messages from "../components/Messages";
 
 export const ChatPage = () => {
   const [connection, setConnection] = useState(null);
   const { user, accessToken } = useContext(AppContext);
   const { chatRooms, setChatRooms, addChatRoom } = useContext(ChatRoomContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const { register, control } = useForm();
   const openModal = () => {
     setIsModalOpen(true);
@@ -40,13 +42,10 @@ export const ChatPage = () => {
         .then((result) => {
           console.log("Connected!");
           connection.invoke("GetDialogs", user._Id);
+          setLoading(true);
         })
         .catch((e) => console.log("Connection failed: ", e));
 
-      connection.on("onMessage", (message) => {
-        console.log("Received message: ", message);
-        // Обработка полученного сообщения
-      });
       connection.on("onGetDialogs", (dialogs) => {
         console.log(dialogs);
         setChatRooms(dialogs);
@@ -55,28 +54,21 @@ export const ChatPage = () => {
         console.log("Error: ", error);
       });
       connection.on("onCreateDialog", (chatroom) => {
+        chatroom.name =
+          chatroom.participants[0]._Id === user._Id
+            ? chatroom.participants[1].name
+            : chatroom.participants[0].name;
         addChatRoom(chatroom);
       });
     }
   }, [connection]);
-  // useEffect(() => {
-  //   if (connection) {
-  //     connection.on("onCreateDialog", (chatroom) => {
-  //       addChatRoom(chatroom);
-  //     });
-  //     connection.on("onGetDialogs", (dialogs) => {
-  //       console.log(dialogs);
-  //       setChatRooms(dialogs);
-  //     });
-  //   }
-  // }, [chatRooms]);
-  console.log(chatRooms);
 
   const createdChat = async (data) => {
     const { name } = data.data;
     console.log(name);
     try {
       const userEnter = await instance.get(`/User/GetUserByName?name=${name}`);
+      console.log(userEnter);
       if (user) {
         connection.invoke("CreateAndEnterDialog", user._Id, userEnter.data._Id);
       }
@@ -113,49 +105,7 @@ export const ChatPage = () => {
             </div>
             <ChatRooms chatrooms={chatRooms} />
           </div>
-
-          <div className="w-full px-5 flex flex-col justify-between min-h-chatHeight">
-            <div className="flex flex-col mt-5">
-              <div className="flex justify-end mb-4">
-                <div className="mr-2 py-3 px-4 dark:bg-[#593A8D] bg-blue-400 rounded-bl-3xl rounded-tl-3xl rounded-tr-xl text-white">
-                  Welcome to group everyone !
-                </div>
-              </div>
-              <div className="flex justify-start mb-4">
-                <div className="ml-2 py-3 px-4 bg-gray-400 rounded-br-3xl rounded-tr-3xl rounded-tl-xl text-white">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Quaerat at praesentium, aut ullam delectus odio error sit rem.
-                  Architecto nulla doloribus laborum illo rem enim dolor odio
-                  saepe, consequatur quas?
-                </div>
-              </div>
-              <div className="flex justify-end mb-4">
-                <div>
-                  <div className="mr-2 py-3 px-4 dark:bg-[#593A8D] bg-blue-400 rounded-bl-3xl rounded-tl-3xl rounded-tr-xl text-white">
-                    Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                    Magnam, repudiandae.
-                  </div>
-
-                  <div className="mt-4 mr-2 py-3 px-4 dark:bg-[#593A8D] bg-blue-400 rounded-bl-3xl rounded-tl-3xl rounded-tr-xl text-white">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Debitis, reiciendis!
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-start mb-4">
-                <div className="ml-2 py-3 px-4 bg-gray-400 rounded-br-3xl rounded-tr-3xl rounded-tl-xl text-white">
-                  happy holiday guys!
-                </div>
-              </div>
-            </div>
-            <div className="py-5 ">
-              <input
-                className="w-full text-white bg-transparent border-2 dark:border-[#593A8D]  py-5 px-3 rounded-xl focus:outline-none"
-                type="text"
-                placeholder="Type your message here..."
-              />
-            </div>
-          </div>
+          {!isLoading ? <h1>Loading</h1> : <Messages connection={connection} />}
         </div>
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h1>Создание диалога</h1>

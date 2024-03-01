@@ -6,15 +6,18 @@ import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
 import AppContextProvider from "./context/AppContextProvider";
 import ChatRoomContextProvider from "./context/ChatRoomContextProvider";
+import MessageContextProvider from "./context/MessageContextProdiver";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
       <AppContextProvider>
-        <ChatRoomContextProvider>
-          <App />
-        </ChatRoomContextProvider>
+        <MessageContextProvider>
+          <ChatRoomContextProvider>
+            <App />
+          </ChatRoomContextProvider>
+        </MessageContextProvider>
       </AppContextProvider>
     </BrowserRouter>
   </React.StrictMode>
