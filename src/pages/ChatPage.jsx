@@ -8,13 +8,16 @@ import { Form, useForm } from "react-hook-form";
 import ChatRoomContext from "../context/ChatRoomContext";
 import ChatRooms from "../components/ChatRooms";
 import Messages from "../components/Messages";
+import ConnectionContext from "../context/ConnectionContext";
+import useCustomParams from "../utils/hooks/useCustomParams";
+import MessageContext from "../context/MessageContext";
 
 export const ChatPage = () => {
-  const [connection, setConnection] = useState(null);
   const { user, accessToken } = useContext(AppContext);
+  const { chatId, name, recvId } = useCustomParams();
+  const { connection } = useContext(ConnectionContext);
   const { chatRooms, setChatRooms, addChatRoom } = useContext(ChatRoomContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setLoading] = useState(false);
   const { register, control } = useForm();
   const openModal = () => {
     setIsModalOpen(true);
@@ -25,24 +28,12 @@ export const ChatPage = () => {
   };
 
   useEffect(() => {
-    const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5211/chat", {
-        accessTokenFactory: () => {
-          return accessToken;
-        },
-      })
-      .withAutomaticReconnect()
-      .build();
-    setConnection(newConnection);
-  }, []);
-  useEffect(() => {
     if (connection) {
       connection
         .start()
         .then((result) => {
           console.log("Connected!");
           connection.invoke("GetDialogs", user._Id);
-          setLoading(true);
         })
         .catch((e) => console.log("Connection failed: ", e));
 
@@ -105,7 +96,13 @@ export const ChatPage = () => {
             </div>
             <ChatRooms chatrooms={chatRooms} />
           </div>
-          {!isLoading ? <h1>Loading</h1> : <Messages connection={connection} />}
+          {name && chatId && recvId ? (
+            <Messages name={name} chatId={chatId} recvId={recvId} />
+          ) : (
+            <div className=" flex-1 flex justify-center items-center dark:text-white">
+              <h1>Выберите чат</h1>
+            </div>
+          )}
         </div>
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h1>Создание диалога</h1>

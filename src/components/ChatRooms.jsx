@@ -6,7 +6,13 @@ const ChatRooms = ({ chatrooms }) => {
   return (
     <div className="flex flex-col w-full  overflow-y-auto">
       {chatrooms.map((item, index) => {
-        return <ChatItem key={`${uniqId}-${index}`} name={item.name} />;
+        return (
+          <ChatItem
+            key={`${uniqId}-${index}`}
+            chatRoomId={item._Id}
+            users={item.participants}
+          />
+        );
       })}
     </div>
   );

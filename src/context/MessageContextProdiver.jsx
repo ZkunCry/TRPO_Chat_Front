@@ -1,9 +1,13 @@
 import { useState } from "react";
 import ChatRoomContext from "./ChatRoomContext";
+import MessageContext from "./MessageContext";
+
 const MessageContextProvider = ({ children }) => {
   const [messages, setMsgs] = useState([]);
 
-  const setMessages = (currentMessages) => {};
+  const setMessages = (currentMessages) => {
+    setMsgs(currentMessages);
+  };
   const addMessage = (msg) => {
     setMsgs((prev) => [...prev, msg]);
   };
@@ -13,9 +17,9 @@ const MessageContextProvider = ({ children }) => {
     messages,
   };
   return (
-    <ChatRoomContext.Provider value={messagesVlaue}>
+    <MessageContext.Provider value={messagesVlaue}>
       {children}
-    </ChatRoomContext.Provider>
+    </MessageContext.Provider>
   );
 };
 export default MessageContextProvider;

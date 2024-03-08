@@ -7,7 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import AppContextProvider from "./context/AppContextProvider";
 import ChatRoomContextProvider from "./context/ChatRoomContextProvider";
 import MessageContextProvider from "./context/MessageContextProdiver";
-
+import ConnectionContextProvider from "./context/ConnectionProvider";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
@@ -15,7 +15,9 @@ root.render(
       <AppContextProvider>
         <MessageContextProvider>
           <ChatRoomContextProvider>
-            <App />
+            <ConnectionContextProvider>
+              <App />
+            </ConnectionContextProvider>
           </ChatRoomContextProvider>
         </MessageContextProvider>
       </AppContextProvider>
