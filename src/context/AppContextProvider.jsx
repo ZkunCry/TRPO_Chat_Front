@@ -22,7 +22,7 @@ const AppContextProvider = ({ children }) => {
       JSON.stringify(currentUser.accessToken)
     );
     setCurrentUser(user);
-    setAccessToken(currentUser.accessToken);
+    setAccesstoken(currentUser.accessToken);
   };
   const getUser = () => {
     return user;

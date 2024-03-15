@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import AppContext from "../context/AppContext";
-import * as signalR from "@microsoft/signalr";
-import ChatItem from "../components/ChatItem";
 import { instance } from "../utils/axios";
 import Modal from "../components/Modal";
 import { Form, useForm } from "react-hook-form";
@@ -14,6 +12,7 @@ import MessageContext from "../context/MessageContext";
 
 export const ChatPage = () => {
   const { user, accessToken } = useContext(AppContext);
+  const { setMessages, addMessage } = useContext(MessageContext);
   const { chatId, name, recvId } = useCustomParams();
   const { connection } = useContext(ConnectionContext);
   const { chatRooms, setChatRooms, addChatRoom } = useContext(ChatRoomContext);
@@ -34,23 +33,22 @@ export const ChatPage = () => {
         .then((result) => {
           console.log("Connected!");
           connection.invoke("GetDialogs", user._Id);
+          connection.on("onGetDialogs", (dialogs) => {
+            console.log(dialogs);
+            setChatRooms(dialogs);
+          });
+          connection.on("onReceiveError", (error) => {
+            console.log("Error: ", error);
+          });
+          connection.on("onCreateDialog", (chatroom) => {
+            chatroom.name =
+              chatroom.participants[0]._Id === user._Id
+                ? chatroom.participants[1].name
+                : chatroom.participants[0].name;
+            addChatRoom(chatroom);
+          });
         })
         .catch((e) => console.log("Connection failed: ", e));
-
-      connection.on("onGetDialogs", (dialogs) => {
-        console.log(dialogs);
-        setChatRooms(dialogs);
-      });
-      connection.on("onReceiveError", (error) => {
-        console.log("Error: ", error);
-      });
-      connection.on("onCreateDialog", (chatroom) => {
-        chatroom.name =
-          chatroom.participants[0]._Id === user._Id
-            ? chatroom.participants[1].name
-            : chatroom.participants[0].name;
-        addChatRoom(chatroom);
-      });
     }
   }, [connection]);
 
