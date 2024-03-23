@@ -1,12 +1,10 @@
 import React, { useContext, useEffect, useId, useRef, useState } from "react";
-import { instance } from "../utils/axios";
 import MessageContext from "../context/MessageContext";
 import AppContext from "../context/AppContext";
 import ConnectionContext from "../context/ConnectionContext";
 const Messages = ({ name, chatId, recvId }) => {
   const [message, setMessage] = useState("");
-  const { setMessages, messagess, addMessage, setLoading, isLoading } =
-    useContext(MessageContext);
+  const { messagess, setLoading, isLoading } = useContext(MessageContext);
   const { connection } = useContext(ConnectionContext);
   const { user } = useContext(AppContext);
   const id = useId();
@@ -21,7 +19,6 @@ const Messages = ({ name, chatId, recvId }) => {
     connection.invoke("SendMessage", chatId, message, user._Id);
     ref.current.scrollTo(0, 99999);
   };
-
   return (
     <div className="w-full px-5 flex flex-col justify-between min-h-chatHeight">
       {!isLoading ? (

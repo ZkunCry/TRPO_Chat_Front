@@ -47,11 +47,18 @@ export const ChatPage = () => {
                 : chatroom.participants[0].name;
             addChatRoom(chatroom);
           });
+
+          connection.on("onGetMessages", (messages) => {
+            setMessages(messages);
+          });
+          connection.on("onMessage", (message) => {
+            addMessage(message);
+          });
+          console.log(connection);
         })
         .catch((e) => console.log("Connection failed: ", e));
     }
   }, [connection]);
-
   const createdChat = async (data) => {
     const { name } = data.data;
     console.log(name);
