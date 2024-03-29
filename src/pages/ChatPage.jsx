@@ -11,7 +11,7 @@ import useCustomParams from "../utils/hooks/useCustomParams";
 import MessageContext from "../context/MessageContext";
 
 export const ChatPage = () => {
-  const { user, accessToken } = useContext(AppContext);
+  const { user } = useContext(AppContext);
   const { setMessages, addMessage } = useContext(MessageContext);
   const { chatId, name, recvId } = useCustomParams();
   const { connection } = useContext(ConnectionContext);
@@ -92,13 +92,7 @@ export const ChatPage = () => {
             >
               <h3> + Создать чат</h3>
             </button>
-            <div className="border-b-2 py-4 px-2  dark:border-[#593A8D] sticky">
-              <input
-                type="text"
-                placeholder="search chatting"
-                className="py-2 px-2 border-2 dark:text-white dark:bg-gray-900 border-[#593A8D] rounded-2xl w-full"
-              />
-            </div>
+
             <ChatRooms chatrooms={chatRooms} />
           </div>
           {name && chatId && recvId ? (
@@ -111,13 +105,20 @@ export const ChatPage = () => {
         </div>
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h1>Создание диалога</h1>
-          <Form control={control} onSubmit={createdChat}>
+          <Form
+            className="flex flex-col gap-2"
+            control={control}
+            onSubmit={createdChat}
+          >
             <input
               type="text"
               {...register("name")}
               placeholder="Введите имя пользователя"
+              className="bg-transparent rounded-lg border px-2"
             />
-            <button>Отправить</button>
+            <button className=" self-end py-1 px-3 bg-black rounded-lg">
+              Создать
+            </button>
           </Form>
         </Modal>
       </div>
