@@ -2,7 +2,7 @@ import { useState } from "react";
 import ChatRoomContext from "./ChatRoomContext";
 const ChatRoomContextProvider = ({ children }) => {
   const [chatRooms, setChats] = useState([]);
-
+  const [lastMessage, setLastMessage] = useState({});
   const setChatRooms = (chats) => {
     console.log(chats);
     setChats((prev) => [...prev, ...chats]);

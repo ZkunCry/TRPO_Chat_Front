@@ -16,8 +16,10 @@ const ConnectionContextProvider = ({ children }) => {
           return JSON.parse(localStorage.getItem("accessToken"));
         },
       })
+      
       .withAutomaticReconnect()
       .build();
+      
     setConnection(newConnection);
   }, []);
   const connectionValue = {

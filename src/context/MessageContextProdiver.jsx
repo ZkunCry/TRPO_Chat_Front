@@ -1,17 +1,19 @@
 import { useState } from "react";
-import ChatRoomContext from "./ChatRoomContext";
 import MessageContext from "./MessageContext";
 
 const MessageContextProvider = ({ children }) => {
   const [messagess, setMsgs] = useState([]);
   const [isLoading, setLoading] = useState(true);
-  const setMessages = (msgs, chatId) => {
+  const setMessages = (msgs) => {
     setMsgs((prev) => {
-      if (prev.length === 0) {
-        return [...prev, { chatRoomId: chatId, messages: msgs }];
+      if (prev?.length === 0) {
+        return [...prev, { chatRoomId: msgs[0].chatRoomId, messages: msgs }];
       } else {
-        if (prev.findIndex((item) => item?.chatRoomId === chatId) === -1)
-          return [...prev, { chatRoomId: chatId, messages: msgs }];
+        if (
+          prev?.findIndex((item) => item?.chatRoomId === msgs[0].chatRoomId) ===
+          -1
+        )
+          return [...prev, { chatRoomId: msgs[0].chatRoomId, messages: msgs }];
         else return [...prev];
       }
     });
@@ -19,14 +21,12 @@ const MessageContextProvider = ({ children }) => {
   };
 
   const addMessage = (msg) => {
-    setMsgs((prev) =>
-      prev.map((item, index) => {
-        if (item.chatRoomId === msg.chatRoomId) {
-          item.messages.push(msg);
-        }
-        return item;
-      })
-    );
+    setMsgs((prev) => {
+      const copy = [...prev];
+      const id = copy.findIndex((item) => item.chatRoomId === msg.chatRoomId);
+      copy[id].messages.push(msg);
+      return copy;
+    });
   };
   const messagesVlaue = {
     setMessages,

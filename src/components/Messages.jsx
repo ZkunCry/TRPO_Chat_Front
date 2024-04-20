@@ -1,12 +1,10 @@
 import React, { useContext, useEffect, useId, useRef, useState } from "react";
-import { instance } from "../utils/axios";
 import MessageContext from "../context/MessageContext";
 import AppContext from "../context/AppContext";
 import ConnectionContext from "../context/ConnectionContext";
 const Messages = ({ name, chatId, recvId }) => {
   const [message, setMessage] = useState("");
-  const { setMessages, messagess, addMessage, setLoading, isLoading } =
-    useContext(MessageContext);
+  const { messagess, setLoading, isLoading } = useContext(MessageContext);
   const { connection } = useContext(ConnectionContext);
   const { user } = useContext(AppContext);
   const id = useId();
@@ -19,9 +17,10 @@ const Messages = ({ name, chatId, recvId }) => {
   }, [chatId, connection?.state]);
   const handleSubmit = async () => {
     connection.invoke("SendMessage", chatId, message, user._Id);
-    ref.current.scrollTo(0, 99999);
   };
-
+  useEffect(() => {
+    ref?.current?.scrollTo(0, 99999);
+  }, [messagess]);
   return (
     <div className="w-full px-5 flex flex-col justify-between min-h-chatHeight">
       {!isLoading ? (
@@ -50,12 +49,12 @@ const Messages = ({ name, chatId, recvId }) => {
           </div>
           <div className="py-5 flex ">
             <input
-              className="flex-1 text-white bg-transparent border-2 dark:border-[#593A8D]  py-5 px-3 rounded-xl focus:outline-none"
+              className="flex-1 text-white bg-transparent border-2 dark:border-[#593A8D]  py-3 px-3 rounded-xl focus:outline-none"
               type="text"
               placeholder="Type your message here..."
               onChange={({ target }) => setMessage(target.value)}
             />
-            <button className=" bg-sky-400" onClick={handleSubmit}>
+            <button className=" bg-indigo-950" onClick={handleSubmit}>
               Click
             </button>
           </div>
