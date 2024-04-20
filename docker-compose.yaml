@@ -1,0 +1,16 @@
+services:
+  front:
+    image: react-app
+    ports:
+      - "3000:3000"
+  back:
+    image: chat-back
+    environment:
+      - ConnectionStrings__mongo=mongodb://mongo:27017
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5000:8080"
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo:latest

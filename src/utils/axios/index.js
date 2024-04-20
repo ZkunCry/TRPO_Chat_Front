@@ -1,6 +1,10 @@
 import axios from "axios";
+const urlBackEnd =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:5000"
+    : "http://localhost:5211";
 export const instance = axios.create({
-  baseURL: "http://localhost:5211",
+  baseURL: urlBackEnd,
   timeout: 1000,
   headers: {
     "X-Custom-Header": "foobar",
